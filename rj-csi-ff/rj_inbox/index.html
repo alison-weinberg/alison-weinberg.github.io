@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inbox — Office of the Watch</title>
+
+  <style>
+    @font-face {
+      font-family: 'Blackletter ITC';
+      src: url('ITCBLKAD.TTF') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --parchment-light: #fdf6e3;
+      --parchment-dark:  #d9c07a;
+      --parchment-aged:  #c9a84c;
+      --ink:             #2c1810;
+      --ink-mid:         #5a3a20;
+      --ink-light:       #8b6914;
+      --seal-red:        #7a1515;
+      --seal-text:       #fdf6e3;
+    }
+
+    html, body {
+      height: 100%;
+      background: transparent;
+      font-family: 'IM Fell English', Georgia, serif;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .test-banner {
+      flex-shrink: 0;
+      background: rgba(255, 224, 178, 0.92);
+      color: #7a3000;
+      font-family: monospace;
+      font-size: 11px;
+      padding: 3px 10px;
+      text-align: center;
+    }
+
+    .inbox-header {
+      flex-shrink: 0;
+      padding: 10px 16px 8px;
+      border-bottom: 2px solid var(--parchment-aged);
+      background: transparent;
+      text-align: center;
+    }
+
+    .inbox-title {
+      font-family: 'Blackletter ITC', Georgia, serif;
+      font-size: 20px;
+      color: var(--ink);
+      letter-spacing: 0.5px;
+    }
+
+    .inbox-recipient {
+      font-size: 11px;
+      font-style: italic;
+      color: var(--ink-mid);
+      margin-top: 2px;
+    }
+
+    .message-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+      background: transparent;
+      scrollbar-width: thin;
+      scrollbar-color: var(--parchment-aged) transparent;
+    }
+
+    .message-list::-webkit-scrollbar { width: 7px; }
+    .message-list::-webkit-scrollbar-track { background: transparent; }
+    .message-list::-webkit-scrollbar-thumb {
+      background: var(--parchment-aged);
+      border-radius: 4px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      font-style: italic;
+      color: var(--ink-mid);
+      font-size: 12px;
+    }
+
+    .message-item {
+      border-radius: 5px;
+      margin-bottom: 6px;
+      border: 1.5px solid var(--parchment-aged);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .message-item:last-child { margin-bottom: 0; }
+    .message-item:hover { border-color: var(--ink-light); }
+
+    .message-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 9px 11px;
+      background: var(--parchment-light);
+      user-select: none;
+    }
+
+    .message-item.read .message-row {
+      background: var(--parchment-dark);
+    }
+
+    .message-fields { flex: 1; min-width: 0; }
+
+    .field-line {
+      display: flex;
+      gap: 6px;
+      font-size: 11px;
+      line-height: 1.65;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .field-label {
+      color: var(--ink-mid);
+      font-style: italic;
+      flex-shrink: 0;
+      min-width: 34px;
+    }
+
+    .field-value {
+      color: var(--ink);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .message-item.unread .field-value { font-weight: bold; }
+
+    .new-badge {
+      flex-shrink: 0;
+      align-self: center;
+      background: var(--seal-red);
+      color: var(--seal-text);
+      font-family: 'IM Fell English', serif;
+      font-size: 9px;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    .message-body {
+      display: none;
+      padding: 14px 16px 16px;
+      background: var(--parchment-light);
+      border-top: 1px solid var(--parchment-aged);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .message-item.expanded .message-body { display: block; }
+
+    .letter-masthead {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .letter-office {
+      display: block;
+      font-family: 'Blackletter ITC', Georgia, serif;
+      font-size: 15px;
+      color: var(--ink);
+    }
+
+    .letter-dateline {
+      font-style: italic;
+      font-size: 11px;
+      color: var(--ink-mid);
+    }
+
+    .letter-rule {
+      border: none;
+      border-top: 1px solid var(--parchment-aged);
+      margin: 9px 0;
+    }
+
+    .letter-meta { margin-bottom: 8px; }
+
+    .letter-meta .field-line {
+      font-size: 12px;
+      white-space: normal;
+    }
+
+    .letter-text {
+      font-size: 12px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      color: var(--ink);
+    }
+
+    .view-report-btn {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 7px 0;
+      background: transparent;
+      border: 1.5px solid var(--seal-red);
+      border-radius: 4px;
+      color: var(--seal-red);
+      font-family: 'IM Fell English', Georgia, serif;
+      font-size: 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .view-report-btn:hover {
+      background: var(--seal-red);
+      color: var(--seal-text);
+    }
+
+    .letter-signoff {
+      margin-top: 12px;
+      font-style: italic;
+      font-size: 11px;
+      color: var(--ink-mid);
+      text-align: right;
+    }
+
+    /* ── Report overlay ── */
+    #reportOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(20, 10, 5, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 9999;
+    }
+
+    #reportOverlay img {
+      max-width: 100%;
+      max-height: calc(100% - 52px);
+      object-fit: contain;
+      border: 1px solid var(--parchment-aged);
+    }
+
+    #reportOverlay .dismiss-report {
+      flex-shrink: 0;
+      background: transparent;
+      border: 1.5px solid var(--parchment-aged);
+      border-radius: 4px;
+      color: var(--parchment-light);
+      font-family: 'IM Fell English', Georgia, serif;
+      font-size: 12px;
+      padding: 5px 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #reportOverlay .dismiss-report:hover {
+      background: rgba(253, 246, 227, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+<div id="testBanner" class="test-banner" style="display:none;">
+  TEST MODE — all messages showing. Remove ?test from URL when adding to Storyline.
+</div>
+
+<div class="inbox-header">
+  <div class="inbox-title">&#x2756; Reports Filed &#x2756;</div>
+  <div class="inbox-recipient" id="recipient">Detective —</div>
+</div>
+
+<div class="message-list" id="messageList">
+  <div class="empty-state" id="emptyState">
+    No reports have been filed to your office.
+  </div>
+</div>
+
+<script>
+
+// ─── MESSAGE MANIFEST ─────────────────────────────────────────────────────────
+// attachments: array of { file_authentic, file_abridged, label } objects.
+// Omit attachments field entirely if no attachment exists.
+// The correct image is chosen automatically based on ModernText variable.
+// varName must match Storyline variable names exactly — also update the
+// bools array in the precinct slide Execute JavaScript trigger to match.
+//
+// PRECINCT SLIDE EXECUTE JAVASCRIPT TRIGGER — keep in sync with varNames below:
+//
+// var player = GetPlayer();
+// var bools = [
+//   'Inbox_Coroner_Paris','Inbox_Coroner_Romeo','Inbox_Coroner_Juliet',
+//   'Inbox_Coroner_Mercutio','Inbox_Coroner_Tybalt',
+//   'Inbox_Lab_Vial_R','Inbox_Lab_Dagger','Inbox_Lab_Longsword','Inbox_Lab_Crowbar',
+//   'Inbox_Lab_Vial_J','Inbox_Lab_Ladder','Inbox_Lab_Diary_J','Inbox_Lab_Diary_R',
+//   'Inbox_Lab_Key','Inbox_Lab_Ring','Inbox_Lab_Invitation',
+//   'Inbox_Lab_Herbs','Inbox_Lab_Vial_F','Inbox_Lab_Book_F',
+//   'Inbox_Lab_Friar_Prints',
+//   'Inbox_Prince_Summons','ModernText'
+// ];
+// bools.forEach(function(v) {
+//   localStorage.setItem('sl_' + v, player.GetVar(v) ? 'true' : 'false');
+// });
+// localStorage.setItem('sl_Detective_Name', player.GetVar('Detective_Name') || '');
+
+const MESSAGES = [
+
+  // ── CORONER REPORTS ────────────────────────────────────────────────────────
+
+  {
+    varName:   'Inbox_Coroner_Paris',
+    timestamp: 10,
+    from:      'Friar Luca Mori, Examiner of the Watch',
+    re:        'Case V-III-P \u2014 County Paris, kinsman to the Prince',
+    authentic:
+`Examination of the above-named deceased is herewith complete.
+
+Decedent: County Paris, kinsman to the Prince. Cause of death: mortal wound by sword. Manner of death: homicide. Location: Capulet tomb, churchyard. Time: this night past. Witness: the Count\u2019s Page.
+
+The full report of examination will be transmitted upon completion. This office remains at your disposal should questions arise.
+
+Friar Luca Mori, Examiner of the Watch`,
+    abridged:
+`Examination of the above-named deceased is complete.
+
+Decedent: County Paris, kinsman to the Prince. Cause of death: mortal wound by sword. Manner of death: homicide. Location: Capulet tomb, churchyard. Time: this night past. Witness: the Count\u2019s Page.
+
+Full examination report to follow. Direct any queries to this office.
+
+Friar Luca Mori, Examiner of the Watch`
+  },
+
+  {
+    varName:   'Inbox_Coroner_Romeo',
+    timestamp: 20,
+    from:      'Friar Luca Mori, Examiner of the Watch',
+    re:        'Case V-III-R \u2014 Romeo Montague',
+    attachments: [
+      { file_authentic: 'report_romeo_authentic.png', file_abridged: 'report_romeo_abridged.png', label: 'View Examination Report' }
+    ],
+    authentic:
+`Herewith is transmitted the report of examination for the above-named deceased. This office remains at your disposal should questions arise.
+
+Friar Luca Mori, Examiner of the Watch`,
+    abridged:
+`Please find the attached examination report for the above-named deceased. Direct any queries to this office.
+
+Friar Luca Mori, Examiner of the Watch`
+  },
+
+  {
+    varName:   'Inbox_Coroner_Juliet',
+    timestamp: 30,
+    from:      'Friar Luca Mori, Examiner of the Watch',
+    re:        'Case V-III-J \u2014 Juliet Capulet',
+    attachments: [
+      { file_authentic: 'report_juliet_authentic.png', file_abridged: 'report_juliet_abridged.png', label: 'View Examination Report' },
+      { file_authentic: 'report_juliet_prior_authentic.png', file_abridged: 'report_juliet_prior_abridged.png', label: 'View Prior Examination (Friar Laurence)' }
+    ],
+    authentic:
+`Herewith is transmitted the report of examination for the above-named deceased. This office remains at your disposal should questions arise.
+
+A secondary document has been brought to the attention of this office, purporting to record a prior examination of the above-named. The document bears the signature of Friar Laurence. It is attached herewith.
+
+Friar Luca Mori, Examiner of the Watch`,
+    abridged:
+`Please find the attached examination report for the above-named deceased. Direct any queries to this office.
+
+A second document has come to our attention \u2014 an apparent prior examination record for the above-named, signed by Friar Laurence. It is attached for your review.
+
+Friar Luca Mori, Examiner of the Watch`
+  },
+
+  {
+    varName:   'Inbox_Coroner_Mercutio',
+    timestamp: 35,
+    from:      'Friar Luca Mori, Examiner of the Watch',
+    re:        'Case III-I-M \u2014 Mercutio',
+    attachments: [
+      { file_authentic: 'report_mercutio_authentic.png', file_abridged: 'report_mercutio_abridged.png', label: 'View Examination Report' }
+    ],
+    authentic:
+`Herewith is transmitted the report of examination for the above-named deceased. This office remains at your disposal should questions arise.
+
+Friar Luca Mori, Examiner of the Watch`,
+    abridged:
+`Please find the attached examination report for the above-named deceased. Direct any queries to this office.
+
+Friar Luca Mori, Examiner of the Watch`
+  },
+
+  {
+    varName:   'Inbox_Coroner_Tybalt',
+    timestamp: 36,
+    from:      'Friar Luca Mori, Examiner of the Watch',
+    re:        'Case III-I-T \u2014 Tybalt Capulet',
+    attachments: [
+      { file_authentic: 'report_tybalt_authentic.png', file_abridged: 'report_tybalt_abridged.png', label: 'View Examination Report' }
+    ],
+    authentic:
+`Herewith is transmitted the report of examination for the above-named deceased. This office remains at your disposal should questions arise.
+
+Friar Luca Mori, Examiner of the Watch`,
+    abridged:
+`Please find the attached examination report for the above-named deceased. Direct any queries to this office.
+
+Friar Luca Mori, Examiner of the Watch`
+  },
+
+  // ── LAB REPORTS — TOMB ────────────────────────────────────────────────────
+
+  {
+    varName:   'Inbox_Lab_Vial_R',
+    timestamp: 40,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Glass Vial (Tomb)',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, three sets of prints were recovered. Two have been identified: Romeo Montague and Juliet Capulet, upon comparison with impressions already held on record. One set remains unidentified.
+
+Chemical analysis reveals trace arsenic upon the interior surfaces. Concentration is consistent with deliberate ingestion.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: three sets of prints recovered. Two identified as Romeo Montague and Juliet Capulet. One set remains unidentified.
+
+Chemical analysis: trace arsenic detected on interior surfaces. Concentration consistent with deliberate ingestion.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Dagger',
+    timestamp: 41,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Dagger',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, two sets of prints were recovered. Both have been identified: Romeo Montague and Juliet Capulet, upon comparison with impressions already held on record.
+
+Blood sampling of the blade returns a single source, identified as Juliet Capulet.
+
+It is noted that the hilt bears an engraving: the initials R.M.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: two sets of prints recovered. Identified as Romeo Montague and Juliet Capulet.
+
+Blood analysis: single source identified as Juliet Capulet.
+
+Note: hilt bears an engraving \u2014 initials R.M.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Longsword',
+    timestamp: 42,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Longsword',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, one set of prints was recovered. These have been identified as belonging to Romeo Montague, upon comparison with impressions already held on record.
+
+Blood sampling of the blade returns a single source, identified as Paris, Count of Verona.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: one set of prints recovered. Identified as Romeo Montague.
+
+Blood analysis: single source identified as Paris, Count of Verona.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Crowbar',
+    timestamp: 43,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Iron Crowbar',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, one set of prints was recovered. These have been identified as belonging to Romeo Montague, upon comparison with impressions already held on record.
+
+No further findings are reported.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: one set of prints recovered. Identified as Romeo Montague.
+
+No further findings.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  // ── LAB REPORTS — CAPULET MANSION / COURTYARD ─────────────────────────────
+
+  {
+    varName:   'Inbox_Lab_Vial_J',
+    timestamp: 50,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Glass Vial (Juliet\u2019s Chamber)',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, two sets of prints were recovered. One has been identified: Juliet Capulet, upon comparison with impressions already held on record. One set remains unidentified.
+
+Chemical analysis reveals trace valerian upon the interior surfaces.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: two sets of prints recovered. One identified as Juliet Capulet. One set remains unidentified.
+
+Chemical analysis: trace valerian detected on interior surfaces.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Ladder',
+    timestamp: 51,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Rope Ladder',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, no recoverable impressions were obtained. The surface material is not conducive to print recovery.
+
+No further findings are reported.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: inconclusive. Surface material not conducive to print recovery.
+
+No further findings.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Diary_J',
+    timestamp: 52,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Diary (Capulet)',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, partial impressions were recovered from the cover. These are consistent with Juliet Capulet, upon comparison with impressions already held on record. No additional prints were recovered.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: partial impressions recovered from cover. Consistent with Juliet Capulet. No additional prints recovered.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  // ── LAB REPORTS — MONTAGUE MANSION ────────────────────────────────────────
+
+  {
+    varName:   'Inbox_Lab_Key',
+    timestamp: 60,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Skeleton Key',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, two sets of prints were recovered. Both have been identified: Romeo Montague and Juliet Capulet, upon comparison with impressions already held on record.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: two sets of prints recovered. Identified as Romeo Montague and Juliet Capulet.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Ring',
+    timestamp: 61,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Signet Ring',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, partial impressions were recovered. Two individuals are indicated, though clarity is insufficient for full confirmation. Partial impressions are consistent with Romeo Montague and Juliet Capulet, upon comparison with impressions already held on record.
+
+The article bears the Montague family seal upon its face.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: partial impressions recovered. Consistent with Romeo Montague and Juliet Capulet, though insufficient for full confirmation.
+
+Note: article bears the Montague family seal.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Invitation',
+    timestamp: 62,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Invitation (Paper)',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, the surface material was found not fully conducive to print recovery. Partial impressions were noted and, upon comparison with impressions already held on record, are consistent with Romeo Montague and Mercutio. Results cannot be confirmed.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: inconclusive. Surface material not conducive to full print recovery. Partial impressions noted \u2014 consistent with Romeo Montague and Mercutio, but insufficient for confirmation.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Diary_R',
+    timestamp: 63,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Diary (Montague)',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, partial impressions were recovered from the cover. These are consistent with Romeo Montague, upon comparison with impressions already held on record. No additional prints were recovered.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: partial impressions recovered from cover. Consistent with Romeo Montague. No additional prints recovered.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  // ── LAB REPORTS — FRIAR'S CELL ────────────────────────────────────────────
+
+  {
+    varName:   'Inbox_Lab_Herbs',
+    timestamp: 70,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Dried Herbs',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Chemical analysis confirms the submitted article to be valerian root. The herb is known for its sedative properties and has established medicinal application.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Chemical analysis: valerian root confirmed. Known sedative with established medicinal use.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Vial_F',
+    timestamp: 71,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Glass Vial (Friar\u2019s Cell)',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, one set of prints was recovered. These remain unidentified. No matching impressions are held on record.
+
+Chemical analysis of the interior surfaces reveals no harmful compounds. The article is consistent with ordinary medicinal preparation.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: one set of prints recovered. Unidentified \u2014 no match on record.
+
+Chemical analysis: no harmful compounds detected. Consistent with ordinary medicinal preparation.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  {
+    varName:   'Inbox_Lab_Book_F',
+    timestamp: 72,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Bound Volume (Friar\u2019s Cell)',
+    authentic:
+`Examination of the submitted article is herewith complete.
+
+Upon dusting, partial impressions were recovered from the cover. These remain unidentified. No matching impressions are held on record.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Examination of the submitted article is complete.
+
+Findings:
+
+Fingerprint analysis: partial impressions recovered from cover. Unidentified \u2014 no match on record.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  // ── LAB REPORTS — FRIAR COMPARISON ────────────────────────────────────────
+
+  {
+    varName:   'Inbox_Lab_Friar_Prints',
+    timestamp: 75,
+    from:      'Forenzi Prova, Watch Laboratory',
+    re:        'Case V-III \u2014 Fingerprint Comparison (Friar Laurence)',
+    authentic:
+`Comparison of the submitted impressions against unidentified specimens held on record is herewith complete.
+
+A match has been confirmed. The submitted impressions correspond to unidentified prints previously recovered from three articles submitted under Case V-III: the glass vial from Juliet\u2019s Chamber, the glass vial from Friar\u2019s Cell, and the bound volume from Friar\u2019s Cell.
+
+No match was found with the unidentified print recovered from the glass vial submitted from the tomb. That specimen remains unidentified.
+
+Forenzi Prova, Watch Laboratory`,
+    abridged:
+`Comparison of submitted impressions against unidentified specimens on record is complete.
+
+Findings:
+
+Match confirmed: submitted impressions correspond to unidentified prints previously recovered from the glass vial (Juliet\u2019s Chamber), the glass vial (Friar\u2019s Cell), and the bound volume (Friar\u2019s Cell).
+
+No match: the unidentified print from the glass vial (Tomb) remains unidentified.
+
+Forenzi Prova, Watch Laboratory`
+  },
+
+  // ── PRINCE SUMMONS ────────────────────────────────────────────────────────
+
+  {
+    varName:   'Inbox_Prince_Summons',
+    timestamp: 80,
+    from:      'Prince Escalus, Lord of Verona',
+    re:        'You are summoned',
+    authentic:
+`Detective,
+
+Thy efforts in service of Verona\u2019s justice have not gone unnoticed. The hour hath come to present thy findings before the throne.
+
+Come to the Prince\u2019s chambers when thou art ready. Verona awaiteth thy counsel.
+
+By order of Prince Escalus`,
+    abridged:
+`Detective,
+
+Your work on this case has been noted. The time has come to present your findings.
+
+Report to the Prince\u2019s chambers when you are ready. Verona is waiting.
+
+By order of Prince Escalus`
+  }
+];
+
+// ─── REPORT OVERLAY ───────────────────────────────────────────────────────────
+
+function openReport(filename) {
+  if (document.getElementById('reportOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'reportOverlay';
+
+  const img = document.createElement('img');
+  img.src = filename;
+  img.alt = 'Coroner\u2019s Report';
+
+  const btn = document.createElement('button');
+  btn.className = 'dismiss-report';
+  btn.textContent = 'Dismiss Report';
+  btn.addEventListener('click', closeReport);
+
+  overlay.appendChild(img);
+  overlay.appendChild(btn);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeReport();
+  });
+
+  document.body.appendChild(overlay);
+}
+
+function closeReport() {
+  const overlay = document.getElementById('reportOverlay');
+  if (overlay) overlay.remove();
+}
+
+// ─── LOCALSTORAGE BRIDGE ──────────────────────────────────────────────────────
+// Storyline writes variable values here via Execute JavaScript on precinct
+// slide timeline start. Falls back to GetPlayer() where available.
+
+
+function getSLVar(name, fallback) {
+  try {
+    const val = localStorage.getItem('sl_' + name);
+    if (val !== null) {
+      if (val === 'true')  return true;
+      if (val === 'false') return false;
+      return val;
+    }
+  } catch (e) {}
+  try {
+    const player = window.parent.GetPlayer ? window.parent.GetPlayer() : GetPlayer();
+    return player ? player.GetVar(name) : fallback;
+  } catch (e) { return fallback; }
+}
+
+// ─── PERSISTENT READ STATE ────────────────────────────────────────────────────
+
+const LS_READ_KEY = 'rj_csi_readState';
+const readState   = {};
+
+function loadReadState() {
+  try {
+    const saved = localStorage.getItem(LS_READ_KEY);
+    if (saved) Object.assign(readState, JSON.parse(saved));
+  } catch (e) {}
+}
+
+function saveReadState() {
+  try {
+    localStorage.setItem(LS_READ_KEY, JSON.stringify(readState));
+  } catch (e) {}
+}
+
+// ─── SESSION STATE ────────────────────────────────────────────────────────────
+
+let expandedVar  = null;
+let prevSnapshot = null;
+const TEST_MODE  = location.search.includes('test');
+
+function makeSnapshot() {
+  const flags = MESSAGES.map(m => getSLVar(m.varName, false) ? '1' : '0').join('');
+  const mode  = getSLVar('ModernText', true) ? 'A' : 'B';
+  const name  = getSLVar('Detective_Name', '');
+  return flags + mode + name;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+
+function render(force) {
+  const snap = makeSnapshot();
+  if (!force && snap === prevSnapshot) return;
+  prevSnapshot = snap;
+
+  const name        = getSLVar('Detective_Name', '') || '';
+  const modernText  = TEST_MODE ? true : getSLVar('ModernText', true);
+  const displayName = name || 'Detective';
+
+  document.getElementById('recipient').textContent =
+    name ? 'Detective ' + name : 'Detective';
+
+  const received = MESSAGES
+    .filter(m => TEST_MODE || getSLVar(m.varName, false) === true)
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  const list  = document.getElementById('messageList');
+  const empty = document.getElementById('emptyState');
+
+  list.querySelectorAll('.message-item').forEach(el => el.remove());
+
+  if (received.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  received.forEach(msg => {
+    const isRead     = readState[msg.varName] || false;
+    const bodyText   = modernText ? msg.abridged : msg.authentic;
+    const isExpanded = expandedVar === msg.varName;
+
+    // Determine attachments based on current mode
+    const attachments = (msg.attachments || []).map(a => ({
+      file:  modernText ? a.file_abridged : a.file_authentic,
+      label: a.label
+    })).filter(a => a.file);
+
+    const attachCount = attachments.length;
+    const attachBadge = attachCount > 0
+      ? '<span style="font-size:10px;font-style:italic;color:var(--ink-mid);margin-left:4px;">(' + attachCount + ' attachment' + (attachCount > 1 ? 's' : '') + ')</span>'
+      : '';
+
+    const item = document.createElement('div');
+    item.className =
+      'message-item' +
+      (isRead     ? ' read'     : ' unread') +
+      (isExpanded ? ' expanded' : '');
+
+    item.innerHTML =
+      '<div class="message-row">' +
+        '<div class="message-fields">' +
+          row('To',   'Detective ' + esc(displayName)) +
+          row('From', esc(msg.from))                   +
+          '<div class="field-line">' +
+            '<span class="field-label">Re:</span>' +
+            '<span class="field-value">' + esc(msg.re) + attachBadge + '</span>' +
+          '</div>' +
+        '</div>' +
+        (!isRead ? '<span class="new-badge" aria-label="Unread">NEW</span>' : '') +
+      '</div>' +
+      '<div class="message-body" role="region" aria-label="Full report">' +
+        '<div class="letter-masthead">' +
+          '<span class="letter-office">&#x2756; Office of the Watch &#x2756;</span>' +
+          '<span class="letter-dateline">Verona, this day past</span>' +
+        '</div>' +
+        '<hr class="letter-rule">' +
+        '<div class="letter-meta">' +
+          row('To',   'Detective ' + esc(displayName), true) +
+          row('From', esc(msg.from),                   true) +
+          row('Re',   esc(msg.re),                     true) +
+        '</div>' +
+        '<hr class="letter-rule">' +
+        '<div class="letter-text">' + esc(bodyText) + '</div>' +
+        (attachments.map(a =>
+          '<button class="view-report-btn" data-file="' + esc(a.file) + '">' + esc(a.label) + '</button>'
+        ).join('')) +
+        '<div class="letter-signoff">\u2014 Filed to Detective ' + esc(displayName) + '</div>' +
+      '</div>';
+
+    // Expand/collapse on row click — open report on button click
+    item.addEventListener('click', function(e) {
+      const btn = e.target.closest('.view-report-btn');
+      if (btn) {
+        e.stopPropagation();
+        openReport(btn.dataset.file);
+        return;
+      }
+      toggle(msg.varName);
+    });
+
+    list.appendChild(item);
+  });
+}
+
+function toggle(varName) {
+  expandedVar = (expandedVar === varName) ? null : varName;
+  if (expandedVar) {
+    readState[varName] = true;
+    saveReadState();
+  }
+  render(true);
+}
+
+function row(label, value, wrap) {
+  const ws = wrap ? 'white-space:normal;' : '';
+  return '<div class="field-line" style="' + ws + '">' +
+    '<span class="field-label">' + label + ':</span>' +
+    '<span class="field-value">' + value + '</span>' +
+  '</div>';
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+if (TEST_MODE) {
+  document.getElementById('testBanner').style.display = 'block';
+}
+
+loadReadState();
+render(true);
+setInterval(() => render(false), 1500);
+window.addEventListener('focus', () => render(true));
+
+</script>
+</body>
+</html>
