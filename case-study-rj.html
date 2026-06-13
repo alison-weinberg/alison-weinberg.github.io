@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branching Investigation Module — Case Study | Alison Weinberg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Libre+Franklin:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            --ivory:       #F5F0E6;
+            --cream:       #EAE5D8;
+            --sage:        #7B9E80;
+            --sage-light:  #C8D8CA;
+            --sage-pale:   #EBF0EB;
+            --sage-dark:   #4F7255;
+            --charcoal:    #292929;
+            --warm-gray:   #6A6560;
+            --border:      rgba(123, 158, 128, 0.25);
+            --shadow:      0 4px 24px rgba(50, 70, 52, 0.10);
+
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body:    'Libre Franklin', 'Franklin Gothic Medium', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--ivory);
+            color: var(--charcoal);
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: 15px;
+            line-height: 1.75;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---- NAV ---- */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 48px;
+            background: rgba(245, 240, 230, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-name {
+            font-family: var(--font-display);
+            font-size: 13px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--charcoal);
+            text-decoration: none;
+        }
+        .nav-back {
+            font-family: var(--font-body);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--sage-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+        .nav-back:hover { color: var(--charcoal); }
+        .nav-back::before {
+            content: '←';
+            font-size: 13px;
+        }
+
+        /* ---- HERO ---- */
+        #hero {
+            padding: 160px 48px 90px;
+            text-align: center;
+            background: var(--sage-dark);
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.06) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.05) 0%, transparent 45%);
+        }
+        .hero-eyebrow {
+            font-family: var(--font-body);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: var(--sage-light);
+            margin-bottom: 24px;
+        }
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(34px, 5.5vw, 58px);
+            font-weight: 500;
+            color: var(--ivory);
+            line-height: 1.15;
+            margin-bottom: 24px;
+            max-width: 760px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero-sub {
+            font-family: var(--font-display);
+            font-size: clamp(16px, 2.2vw, 20px);
+            font-style: italic;
+            color: var(--ivory);
+            opacity: 0.85;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ---- STAT BAR ---- */
+        .stat-bar {
+            background: var(--sage-pale);
+            border-bottom: 1px solid var(--border);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='104'%3E%3Cg fill='none' stroke='%237B9E80' stroke-width='0.75' opacity='0.18'%3E%3Cpath d='M30 0 L60 17.3 L60 52 L30 69.3 L0 52 L0 17.3 Z'/%3E%3Cpath d='M30 69.3 L60 86.6 L60 121.3 L30 138.6 L0 121.3 L0 86.6 Z'/%3E%3C/g%3E%3Cg fill='%237B9E80' opacity='0.35'%3E%3Ccircle cx='30' cy='0' r='1.5'/%3E%3Ccircle cx='60' cy='17.3' r='1.5'/%3E%3Ccircle cx='60' cy='52' r='1.5'/%3E%3Ccircle cx='30' cy='69.3' r='1.5'/%3E%3Ccircle cx='0' cy='52' r='1.5'/%3E%3Ccircle cx='0' cy='17.3' r='1.5'/%3E%3Ccircle cx='30' cy='138.6' r='1.5'/%3E%3Ccircle cx='60' cy='121.3' r='1.5'/%3E%3Ccircle cx='0' cy='121.3' r='1.5'/%3E%3C/svg%3E");
+        }
+        .stat-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 48px 48px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+            text-align: center;
+        }
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 600;
+            color: var(--sage-dark);
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-family: var(--font-body);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--warm-gray);
+        }
+
+        /* ---- ARTICLE ---- */
+        .article-inner {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 88px 48px;
+        }
+
+        .article-inner h2 {
+            font-family: var(--font-display);
+            font-size: clamp(24px, 3.5vw, 32px);
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 64px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .article-inner h2:first-child { margin-top: 0; }
+        .article-inner h2::before {
+            content: '';
+            display: block;
+            width: 28px;
+            height: 2px;
+            background: var(--sage);
+            flex-shrink: 0;
+        }
+
+        .article-inner h3 {
+            font-family: var(--font-display);
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--sage-dark);
+            margin-top: 32px;
+            margin-bottom: 12px;
+        }
+
+        .article-inner p {
+            font-size: 15px;
+            line-height: 1.85;
+            color: var(--charcoal);
+            margin-bottom: 18px;
+        }
+
+        .article-inner em { color: var(--sage-dark); font-style: italic; }
+
+        .pullquote {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 3vw, 26px);
+            font-style: italic;
+            color: var(--sage-dark);
+            line-height: 1.5;
+            border-left: 3px solid var(--sage);
+            padding: 4px 0 4px 28px;
+            margin: 40px 0;
+        }
+
+        .scope-box {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 32px 36px;
+            margin-top: 16px;
+            box-shadow: var(--shadow);
+        }
+        .scope-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .scope-list li {
+            font-size: 13.5px;
+            color: var(--warm-gray);
+            padding-left: 18px;
+            border-left: 2px solid var(--sage-light);
+        }
+        .scope-list li strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: var(--sage-dark);
+            font-weight: 600;
+        }
+
+        /* ---- CTA / FOOTER NAV ---- */
+        .end-cta {
+            text-align: center;
+            padding: 80px 48px 100px;
+            border-top: 1px solid var(--border);
+        }
+        .end-cta p {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 3vw, 28px);
+            font-style: italic;
+            color: var(--warm-gray);
+            max-width: 480px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+        .end-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .btn-view {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--sage-dark);
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            transition: background 0.2s ease;
+        }
+        .btn-view:hover { background: var(--charcoal); }
+        .btn-secondary {
+            display: inline-block;
+            padding: 12px 30px;
+            background: transparent;
+            color: var(--sage-dark);
+            border: 1px solid var(--sage);
+            font-family: var(--font-body);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .btn-secondary:hover { background: var(--sage-dark); color: #fff; }
+
+        footer {
+            padding: 28px 48px;
+            text-align: center;
+            background: var(--sage-dark);
+        }
+        .footer-text {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--sage-light);
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 24px; }
+            #hero { padding: 120px 24px 64px; }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); padding: 40px 24px; gap: 28px; }
+            .article-inner { padding: 64px 24px; }
+            .scope-list { grid-template-columns: 1fr; }
+            .end-cta { padding: 64px 24px 80px; }
+        }
+        @media (max-width: 480px) {
+            .nav-name { display: none; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="nav-name">Alison Weinberg</a>
+        <a href="index.html#work" class="nav-back">Back to Portfolio</a>
+    </nav>
+
+    <section id="hero">
+        <p class="hero-eyebrow">Case Study</p>
+        <h1 class="hero-title">Branching Investigation Module: Designing for Choice and Consequence</h1>
+        <p class="hero-sub">A custom-built scenario engine, disguised as a Shakespeare assignment.</p>
+    </section>
+
+    <div class="stat-bar">
+        <div class="stat-grid">
+            <div>
+                <p class="stat-value">75+</p>
+                <p class="stat-label">Variables</p>
+            </div>
+            <div>
+                <p class="stat-value">58</p>
+                <p class="stat-label">Triggers on One Slide</p>
+            </div>
+            <div>
+                <p class="stat-value">3 of 12+</p>
+                <p class="stat-label">Scenes Built</p>
+            </div>
+            <div>
+                <p class="stat-value">2</p>
+                <p class="stat-label">Reading Levels, One Build</p>
+            </div>
+        </div>
+    </div>
+
+    <article class="article-inner">
+
+        <h2>The Challenge</h2>
+        <p>Build a scenario-based module where learner choice has real consequence, without forcing linear paths or locking content behind arbitrary gates. The system needed to support differentiated reading levels for a single learner population, deliver content asynchronously based on learner actions, and assess reasoning rather than completion.</p>
+
+        <h2>Architecture</h2>
+        <p>The module runs on a 75+ variable system in Articulate Storyline that drives map gating, NPC dialogue states, content delivery timing, and branching progression. A custom JavaScript/localStorage bridge powers a persistent inbox, solving a known Storyline limitation where the <code>GetPlayer()</code> API doesn't function inside iframes.</p>
+        <p>This required understanding both Storyline's execution model and browser storage behavior, and resulted in a fully custom interface (read/unread states, persistent state across sessions, image attachment overlays) embedded as a web object.</p>
+
+        <div class="pullquote">"The choice not to read something has consequences down the line."</div>
+
+        <h2>Key Design Decisions</h2>
+
+        <h3>Choice architecture with consequence</h3>
+        <p>Learners aren't forced to review every available resource. Instead, a scored assessment dialogue evaluates whether learners engaged with relevant content, mirroring real workplace decision-making, where the choice not to read something has consequences down the line.</p>
+
+        <h3>Dual reading levels as differentiation, not duplication</h3>
+        <p>A single controlled variable toggles between two language registers across all NPC and narrative content, while interface elements remain consistent across both modes, so the navigation experience doesn't change, only the voice of the story does. One build serves multiple instructional contexts without maintaining parallel versions.</p>
+
+        <h3>Delayed delivery as spaced practice</h3>
+        <p>Content submitted by the learner doesn't return immediately, it arrives after the learner has moved to other tasks, using idempotent triggers that resolve correctly regardless of how many times a learner revisits the trigger point. This creates natural spaced retrieval: initial engagement, intervening activity, then integration of returned results.</p>
+
+        <h2>Scope</h2>
+        <p>Built over several months alongside full-time work.</p>
+        <div class="scope-box">
+            <ul class="scope-list">
+                <li><strong>75+</strong>Variables driving gating, dialogue, and progression</li>
+                <li><strong>58</strong>Triggers on a single transition slide</li>
+                <li><strong>Dual-Mode</strong>Content throughout, one build</li>
+                <li><strong>3 / 12+</strong>Complete scenes, full build in progress</li>
+            </ul>
+        </div>
+
+        <h2>Standards Alignment</h2>
+        <p>While the forensic framing is the hook, the mechanics map directly to Common Core ELA standards for grades 9-12:</p>
+        <div class="scope-box">
+            <ul class="scope-list">
+                <li><strong>RL.9-10.1</strong>Evidence-based inference: the lab pipeline requires citing specific evidence to support conclusions</li>
+                <li><strong>RL.9-10.3</strong>Character analysis: witness interviews reveal motive and development through dialogue</li>
+                <li><strong>W.9-10.1</strong>Argument writing: the debrief requires a defensible claim built on gathered evidence</li>
+            </ul>
+        </div>
+
+        <h2>Reflection</h2>
+        <p>Most of my day-to-day work runs on templated builds, optimized for rapid delivery and fast QA turnaround. This project was a deliberate departure from that, and it taught me things the templates don't.</p>
+        <p>The variable architecture wasn't complexity for its own sake. A single numeric routing variable, idempotent delivery triggers, and consistent state management were a QA strategy: the build is more predictable to test, not less, because every state is accounted for rather than handled ad hoc at each decision point. That's a lesson I now bring back to scoping conversations on templated work, where branching often gets avoided because it's assumed to be unpredictable.</p>
+        <p>I also went deeper into JavaScript and web object integration than I had before, and explored how AI-assisted workflows can support build complexity and QA efficiency on projects like this, an area I'm continuing to develop.</p>
+
+        <h2>Beyond the Portfolio</h2>
+        <p>The module is designed as a potential commercial product for secondary English and theatre educators, with a built-in path to licensing information for interested reviewers.</p>
+        <p>The forensic framing also creates a natural bridge for ELA and science co-teaching, evidence analysis and reasoning about lab results echo the kind of scientific thinking a partnering science class could build on. The current module doesn't teach lab science content, but the structure is there for a future cross-curricular collaboration.</p>
+
+    </article>
+
+    <div class="end-cta">
+        <p>Built to prove a system, not just tell a story.</p>
+        <div class="end-links">
+            <a href="https://alison-weinberg.github.io/rj-p/" class="btn-view" target="_blank" rel="noopener">View Live Module</a>
+            <a href="index.html#work" class="btn-secondary">Back to Portfolio</a>
+        </div>
+    </div>
+
+    <footer>
+        <p class="footer-text">&copy; Alison Weinberg. All original work and designs are protected and may not be reproduced without permission.</p>
+    </footer>
+
+</body>
+</html>
