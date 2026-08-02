@@ -281,7 +281,38 @@
             overflow: hidden;
             background: var(--cream);
         }
-        .compare-shot img { width: 100%; display: block; }
+        .compare-shot img { width: 100%; display: block; cursor: zoom-in; }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(41, 41, 41, 0.92);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            cursor: zoom-out;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img {
+            max-width: 92%;
+            max-height: 92%;
+            border-radius: 3px;
+            box-shadow: var(--shadow-hover, 0 12px 40px rgba(0,0,0,0.3));
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 28px;
+            right: 40px;
+            color: var(--ivory);
+            font-family: var(--font-body);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
         .compare-shot-placeholder {
             aspect-ratio: 4/3;
             background: linear-gradient(135deg, var(--sage-pale) 0%, var(--sage-light) 100%);
@@ -469,11 +500,11 @@
 
         <div class="compare-grid">
             <div class="compare-shot">
-                <img src="images/transfer-before-1.png" alt="Original warm transfer process screen with static numbered screenshots">
+                <img src="images/transfer-before-1.png" alt="Original warm transfer process screen with static numbered screenshots" onclick="openLightbox(this.src)">
                 <div class="compare-cap">Black header bar, left-aligned, static numbered screenshots, no video demonstration, followed by red header with important reminders not directly related to the transfer process</div>
             </div>
             <div class="compare-shot">
-                <img src="images/transfer-before-2.png" alt="Original prospective member case documentation screen">
+                <img src="images/transfer-before-2.png" alt="Original prospective member case documentation screen" onclick="openLightbox(this.src)">
                 <div class="compare-cap">Pink header, center aligned, combined two-step video with on-screen text covering a third of the frame, different callout style for recap of numbered steps with no screenshots</div>
             </div>
         </div>
@@ -519,6 +550,20 @@
     <footer>
         <p class="footer-text">This case study reflects work completed in a professional capacity. Client and proprietary details have been altered or removed to protect confidentiality.</p>
     </footer>
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">Close &times;</span>
+        <img id="lightbox-img" src="" alt="Enlarged screenshot">
+    </div>
+
+    <script>
+        function openLightbox(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').classList.add('active');
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+    </script>
 
 </body>
 </html>
