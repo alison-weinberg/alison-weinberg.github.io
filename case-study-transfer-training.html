@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>The Phone Numbers Weren't the Problem — Case Study | Alison Weinberg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Libre+Franklin:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            --ivory:       #F5F0E6;
+            --cream:       #EAE5D8;
+            --sage:        #7B9E80;
+            --sage-light:  #C8D8CA;
+            --sage-pale:   #EBF0EB;
+            --sage-dark:   #4F7255;
+            --charcoal:    #292929;
+            --warm-gray:   #6A6560;
+            --border:      rgba(123, 158, 128, 0.25);
+            --shadow:      0 4px 24px rgba(50, 70, 52, 0.10);
+
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body:    'Libre Franklin', 'Franklin Gothic Medium', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--ivory);
+            color: var(--charcoal);
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: 15px;
+            line-height: 1.75;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---- NAV ---- */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 48px;
+            background: rgba(245, 240, 230, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-name {
+            font-family: var(--font-display);
+            font-size: 13px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--charcoal);
+            text-decoration: none;
+        }
+        .nav-back {
+            font-family: var(--font-body);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--sage-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+        .nav-back:hover { color: var(--charcoal); }
+        .nav-back::before {
+            content: '←';
+            font-size: 13px;
+        }
+
+        /* ---- HERO ---- */
+        #hero {
+            padding: 160px 48px 90px;
+            text-align: center;
+            background: var(--sage-dark);
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.06) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.05) 0%, transparent 45%);
+        }
+        .hero-eyebrow {
+            font-family: var(--font-body);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: var(--sage-light);
+            margin-bottom: 24px;
+        }
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(34px, 5.5vw, 58px);
+            font-weight: 500;
+            color: var(--ivory);
+            line-height: 1.15;
+            margin-bottom: 24px;
+            max-width: 760px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero-sub {
+            font-family: var(--font-display);
+            font-size: clamp(16px, 2.2vw, 20px);
+            font-style: italic;
+            color: var(--ivory);
+            opacity: 0.85;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ---- STAT BAR ---- */
+        .stat-bar {
+            background: var(--sage-pale);
+            border-bottom: 1px solid var(--border);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='104'%3E%3Cg fill='none' stroke='%237B9E80' stroke-width='0.75' opacity='0.18'%3E%3Cpath d='M30 0 L60 17.3 L60 52 L30 69.3 L0 52 L0 17.3 Z'/%3E%3Cpath d='M30 69.3 L60 86.6 L60 121.3 L30 138.6 L0 121.3 L0 86.6 Z'/%3E%3C/g%3E%3Cg fill='%237B9E80' opacity='0.35'%3E%3Ccircle cx='30' cy='0' r='1.5'/%3E%3Ccircle cx='60' cy='17.3' r='1.5'/%3E%3Ccircle cx='60' cy='52' r='1.5'/%3E%3Ccircle cx='30' cy='69.3' r='1.5'/%3E%3Ccircle cx='0' cy='52' r='1.5'/%3E%3Ccircle cx='0' cy='17.3' r='1.5'/%3E%3Ccircle cx='30' cy='138.6' r='1.5'/%3E%3Ccircle cx='60' cy='121.3' r='1.5'/%3E%3Ccircle cx='0' cy='121.3' r='1.5'/%3E%3C/svg%3E");
+        }
+        .stat-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 48px 48px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+            text-align: center;
+        }
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 600;
+            color: var(--sage-dark);
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-family: var(--font-body);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--warm-gray);
+        }
+
+        /* ---- ARTICLE ---- */
+        .article-inner {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 88px 48px;
+        }
+
+        .article-inner h2 {
+            font-family: var(--font-display);
+            font-size: clamp(22px, 3.2vw, 30px);
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--charcoal);
+            margin-top: 64px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .article-inner h2:first-child { margin-top: 0; }
+        .article-inner h2::before {
+            content: '';
+            display: block;
+            width: 28px;
+            height: 2px;
+            background: var(--sage);
+            flex-shrink: 0;
+        }
+
+        .article-inner h3 {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--sage-dark);
+            margin-top: 32px;
+            margin-bottom: 14px;
+        }
+
+        .article-inner p {
+            font-size: 15px;
+            line-height: 1.85;
+            color: var(--charcoal);
+            margin-bottom: 18px;
+        }
+
+        .article-inner em { color: var(--sage-dark); font-style: italic; }
+
+        .ask-callout {
+            background: var(--sage-pale);
+            border-left: 3px solid var(--sage);
+            border-radius: 0 3px 3px 0;
+            padding: 18px 24px;
+            margin: 32px 0;
+            font-size: 14.5px;
+            line-height: 1.75;
+            color: var(--charcoal);
+        }
+        .ask-callout strong {
+            display: block;
+            font-family: var(--font-body);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--sage-dark);
+            margin-bottom: 8px;
+        }
+
+        .scope-box {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 32px 36px;
+            margin-top: 16px;
+            box-shadow: var(--shadow);
+        }
+        .scope-label {
+            font-family: var(--font-body);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--warm-gray);
+            margin: 28px 0 12px;
+        }
+        .scope-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .scope-list.three { grid-template-columns: repeat(3, 1fr); }
+        .scope-list li {
+            font-size: 13.5px;
+            color: var(--warm-gray);
+            padding-left: 18px;
+            border-left: 2px solid var(--sage-light);
+        }
+        .scope-list li strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: var(--sage-dark);
+            font-weight: 600;
+        }
+
+        .plain-list {
+            list-style: none;
+            margin: 18px 0;
+        }
+        .plain-list li {
+            font-size: 14.5px;
+            line-height: 1.8;
+            color: var(--charcoal);
+            margin-bottom: 14px;
+            padding-left: 20px;
+            border-left: 2px solid var(--sage-light);
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .compare-shot {
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            background: var(--cream);
+        }
+        .compare-shot img { width: 100%; display: block; }
+        .compare-shot-placeholder {
+            aspect-ratio: 4/3;
+            background: linear-gradient(135deg, var(--sage-pale) 0%, var(--sage-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .placeholder-label {
+            font-family: var(--font-body);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--sage-dark);
+            opacity: 0.6;
+        }
+        .compare-cap {
+            padding: 12px 16px;
+            font-size: 11px;
+            letter-spacing: 0.02em;
+            color: var(--warm-gray);
+            border-top: 1px solid var(--border);
+        }
+
+        /* ---- CTA / FOOTER NAV ---- */
+        .end-cta {
+            text-align: center;
+            padding: 80px 48px 100px;
+            border-top: 1px solid var(--border);
+        }
+        .end-cta p {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 3vw, 28px);
+            font-style: italic;
+            color: var(--warm-gray);
+            max-width: 480px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+        .end-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .btn-view {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--sage-dark);
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            transition: background 0.2s ease;
+        }
+        .btn-view:hover { background: var(--charcoal); }
+        .btn-secondary {
+            display: inline-block;
+            padding: 12px 30px;
+            background: transparent;
+            color: var(--sage-dark);
+            border: 1px solid var(--sage);
+            font-family: var(--font-body);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .btn-secondary:hover { background: var(--sage-dark); color: #fff; }
+
+        footer {
+            padding: 28px 48px;
+            text-align: center;
+            background: var(--sage-dark);
+        }
+        .footer-text {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--sage-light);
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 24px; }
+            #hero { padding: 120px 24px 64px; }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); padding: 40px 24px; gap: 28px; }
+            .article-inner { padding: 64px 24px; }
+            .scope-list { grid-template-columns: 1fr; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .end-cta { padding: 64px 24px 80px; }
+        }
+        @media (max-width: 480px) {
+            .nav-name { display: none; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="nav-name">Alison Weinberg</a>
+        <a href="index.html#work" class="nav-back">Back to Portfolio</a>
+    </nav>
+
+    <section id="hero">
+        <p class="hero-eyebrow">Case Study</p>
+        <h1 class="hero-title">The Phone Numbers Weren't the Problem</h1>
+        <p class="hero-sub">Redesigning a failing compliance module around what the audit data actually showed.</p>
+    </section>
+
+    <div class="stat-bar">
+        <div class="stat-grid">
+            <div>
+                <p class="stat-value">172</p>
+                <p class="stat-label">Audits Analyzed</p>
+            </div>
+            <div>
+                <p class="stat-value">27.3%</p>
+                <p class="stat-label">Dropped or Cold Transfers</p>
+            </div>
+            <div>
+                <p class="stat-value">20.2%</p>
+                <p class="stat-label">Wrong Department</p>
+            </div>
+            <div>
+                <p class="stat-value">9.9%</p>
+                <p class="stat-label">Excessive Hold Time</p>
+            </div>
+        </div>
+    </div>
+
+    <article class="article-inner">
+
+        <h2>Problem</h2>
+        <p>A recurring call type for a healthcare BPO client gets secret-shopped by external auditors: if a caller requests a specific high-risk transfer, the agent must send them immediately, no questions asked, a deliberate exception to standard verification.</p>
+        <p>Multiple versions of this training had already shipped. Agents kept failing anyway.</p>
+
+        <h2>Analysis</h2>
+        <h3>What the data showed</h3>
+        <p>Delivery Ops's audit data, 172 audits, broke the failures into two groups.</p>
+
+        <p class="scope-label">Transfer-related fails</p>
+        <div class="scope-box">
+            <ul class="scope-list three">
+                <li><strong>27.3%</strong>Dropped the call mid-transfer or cold transferred instead of warm transferring</li>
+                <li><strong>20.2%</strong>Transferred to the wrong department</li>
+                <li><strong>9.9%</strong>Left the caller on hold too long searching for the transfer number</li>
+            </ul>
+        </div>
+
+        <p class="scope-label">Other common fails</p>
+        <div class="scope-box">
+            <ul class="scope-list">
+                <li><strong>38.4%</strong>Asked verification questions before transferring, the exact check this call type skips</li>
+                <li><strong>9.3%</strong>Gave the wrong public-facing number, buried in a knowledge base table under the wrong heading</li>
+            </ul>
+        </div>
+
+        <div class="ask-callout">
+            <strong>The Ask</strong>
+            Update the module's public-facing numbers, which had recently changed, and republish.
+        </div>
+
+        <h3>Instructional design analysis</h3>
+        <p>Opening the module made clear that wasn't the real problem:</p>
+        <ul class="plain-list">
+            <li>Transfer steps lived in a single static image referencing a documentation step the learner hadn't seen yet, out of order</li>
+            <li>Documentation itself, two distinct tasks, was one video with on-screen text covering a third of the frame, then a redundant static recap in different formatting than the transfer section</li>
+            <li>The transfer and documentation steps had no knowledge checks of their own at all</li>
+            <li>The full module's final assessment tested recall of context, not the behaviors being audited</li>
+            <li>Headers, colors, and callouts were inconsistent screen to screen</li>
+        </ul>
+        <p>Beyond format, the ask itself was flawed: <strong>no one references an eLearning module mid-call</strong>. The numbers needed to come out entirely, not just get corrected, cutting screenshot risk and making the lesson evergreen.</p>
+
+        <div class="compare-grid">
+            <div class="compare-shot">
+                <div class="compare-shot-placeholder">
+                    <span class="placeholder-label">Before &middot; Warm Transfer Process</span>
+                </div>
+                <div class="compare-cap">Black header bar, left-aligned, static numbered screenshots, no video demonstration, followed by red header with important reminders not directly related to the transfer process</div>
+            </div>
+            <div class="compare-shot">
+                <div class="compare-shot-placeholder">
+                    <span class="placeholder-label">Before &middot; Prospective Member Case</span>
+                </div>
+                <div class="compare-cap">Pink header, center aligned, combined two-step video with on-screen text covering a third of the frame, different callout style for recap of numbered steps with no screenshots</div>
+            </div>
+        </div>
+
+        <h2>Design Decisions</h2>
+        <p>Here's what I built to fix it. The full lesson was restructured around Recognize, Respond, Implications; this excerpt covers the transfer and documentation portion of it.</p>
+
+        <p style="margin: 8px 0 28px;"><a href="#" class="btn-view" target="_blank" rel="noopener">Launch the Module &nearr;</a></p>
+
+        <h3>Shown in this excerpt</h3>
+        <ul class="plain-list">
+            <li>Static screenshots of the three-part call handling processes replaced with short video demos, each followed by an interactive carousel, turning passive viewing into active engagement</li>
+            <li>Three knowledge checks introduced for a section that previously had none, added to the end of the call handling and documentation section for retention: multiple choice and true/false on correct transfer practices, sequencing and matching on documentation steps</li>
+            <li>Consistent formatting applied across every screen</li>
+        </ul>
+
+        <h3>Other design decisions, full module, not shown here</h3>
+        <ul class="plain-list">
+            <li>Additional visuals added to reinforce verification-question guidance, addressing the 38.4% failure point</li>
+            <li>Phone numbers removed entirely, correct-number guidance addressed through a "use with caution" carousel marking up the knowledge base article to flag what's reliable and what isn't, addressing the 9.3% failure point</li>
+            <li>A flip-tile interaction built on the current failure-rate data to drive home implications and common missteps to avoid</li>
+            <li>Full module's final assessment updated to replace context-recall questions with ones that test the critical behaviors directly</li>
+            <li>A VILT activity built on a real failed-audit recording, used as a spot-the-failure exercise</li>
+            <li>Full version of the embedded three-part video segments, with intro and outro, published separately for use as a just-in-time reference</li>
+        </ul>
+
+        <h2>Resolution</h2>
+        <p>Early feedback has been strongly positive. The next audit cycle, expected within a few weeks, will confirm whether the 27.3%, 20.2%, and 9.9% rates this excerpt targets actually moved.</p>
+
+        <h2>Reflection</h2>
+        <p>A redesigned module only closes part of the gap. I found the Teams-posted flyer, agents' backup source for callback numbers, still has outdated versions circulating. I flagged it to Delivery Ops: even perfect retention won't move the failure rate if agents can still land on a stale flyer through a channel the training doesn't control.</p>
+
+    </article>
+
+    <div class="end-cta">
+        <p>Adding structure to move metrics and drive performance.</p>
+        <div class="end-links">
+            <a href="#" class="btn-view" target="_blank" rel="noopener">View Live Module</a>
+            <a href="index.html#work" class="btn-secondary">Back to Portfolio</a>
+        </div>
+    </div>
+
+    <footer>
+        <p class="footer-text">This case study reflects work completed in a professional capacity. Client and proprietary details have been altered or removed to protect confidentiality.</p>
+    </footer>
+
+</body>
+</html>
